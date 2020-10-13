@@ -1,5 +1,5 @@
 metadata {
-	definition (name: "Thermostat Capability", namespace: "capabilities", author: "SmartThings") {
+	definition (name: "Switch-Thermostat Capability", namespace: "capabilities", author: "JorgePalmeira") {
 		capability "Thermostat"
 		capability "Switch"
 	}
