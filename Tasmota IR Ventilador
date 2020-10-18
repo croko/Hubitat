@@ -17,7 +17,7 @@ metadata {
         capability "Switch Level"
         capability "Switch"
         capability "SwitchLevel"
-	capability "FanControl"
+		capability "FanControl"
         capability "Health Check"
         capability "Actuator"
         capability "Refresh"
