@@ -22,8 +22,6 @@ metadata {
 		capability "ThermostatCoolingSetpoint" //Ajustei
 		capability "ThermostatMode"            //Ajustei
 		capability "ThermostatFanMode"         //Ajustei
-		capability "Air Conditioner Mode" //Jorge
-		capability "Air Conditioner Fan Mode" //Jorge
 		capability "HealthCheck"               //Ajustei
 		//attribute "power", "number"
 	}
