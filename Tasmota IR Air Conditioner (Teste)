@@ -106,12 +106,14 @@ def processPower(p) {
 
 def off() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"Off"}')
+    sendEvent(name: "switch", value: "off", displayed: true)
 }
 
 def on() {
 	//sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("airConditionerMode")+'","FanSpeed":"Auto","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 	sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
+    sendEvent(name: "switch", value: "on", displayed: true)
 }
 
 def setCoolingSetpoint(temperature){
@@ -121,29 +123,26 @@ def setCoolingSetpoint(temperature){
 	}
 	sendEvent(name: "coolingSetpoint", value: temperature as int, unit: "C", displayed: true)
 
-#EDIÇÃO
+//EDIÇÃO
 
 }
 
 def heat() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Heat","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-	log_debug "Executing 'heat'"
-	send_Event(name: "thermostatMode", value: "heat", descriptionText: "Thermostat Mode set to heat", isStateChange: true)
+    send_Event(name: "airConditionerMode", value: "heat",descriptionText: "Air Conditioner Mode set to heat", isStateChange: true)
 }
 
 def cool() {
-	log_debug "Executing 'cool'"
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-	send_Event(name: "thermostatMode", value: "cool", descriptionText: "Thermostat Mode set to cool", isStateChange: true)
+    send_Event(name: "airConditionerMode", value: "cool",descriptionText: "Air Conditioner Mode set to cool", isStateChange: true)
 }
 
 def auto() {
-	log_debug "Executing 'auto'"
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-	send_Event(name: "thermostatMode", value: "cool", descriptionText: "Thermostat Mode set to cool", isStateChange: true)
+    send_Event(name: "airConditionerMode", value: "auto",descriptionText: "Air Conditioner Mode set to auto", isStateChange: true)
 }
 
-#fim edição
+//fim edição
 
 def setThermostatMode(mode) {
     //"heat", "cool", "emergency heat", "auto", "off"
