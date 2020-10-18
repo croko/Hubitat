@@ -13,16 +13,26 @@
  *
  */
 metadata {
-	definition (name: "Tasmota IR Air Conditioner (Preview)", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.airconditioner") { 
-		capability "Actuator"
-		capability "Configuration"
-		capability "Refresh"
-		capability "Switch"
-		capability "Thermostat" //Jorge
-		capability "ThermostatMode"            //Ajustei
-		capability "ThermostatFanMode"         //Ajustei
-		capability "HealthCheck"               //Ajustei
-		//attribute "power", "number"
+	definition (name: "Tasmota IR Ventilador", namespace: "jorgespneto", author: "Jorge Palmeira", ocfDeviceType: "oic.d.fan") { 
+        capability "Switch Level"
+        capability "Switch"
+        capability "SwitchLevel"
+	capability "FanControl"
+        capability "Health Check"
+        capability "Actuator"
+        capability "Refresh"
+        capability "Sensor"
+        capability "Signal Strength"
+        capability "Initialize" 
+
+        attribute "lastSeen", "string"
+        attribute "version", "string"
+
+        command "low"
+        command "medium"
+        command "high"
+        command "raiseFanSpeed"
+        command "lowerFanSpeed"
 	}
 
 	fingerprint profileId: "0104", deviceId: "0051", inClusters: "0000 0003 0004 0006 0009 0702 0B04", outClusters: "0000 0003 0004 0006 0009 0702 0B04", manufacturer: "Heiman", model: "SmartPlug", deviceJoinName: "에어컨" // fingerprint of Heiman 16A plug
@@ -35,22 +45,35 @@ metadata {
 		input name: "onThreshold", title:"On Threshold Power (W)", type: "number", required: true, defaultValue: 4
 	}
 
-	tiles(scale: 2) {
-		multiAttributeTile(name:"switch", type: "lighting", width: 6, height: 4, canChangeIcon: true){
-			tileAttribute ("device.switch", key: "PRIMARY_CONTROL") {
-				attributeState "on", label:'${name}', icon:"st.switches.switch.on", backgroundColor:"#00A0DC"
-				attributeState "off", label:'${name}', icon:"st.switches.switch.off", backgroundColor:"#ffffff"
-			}
-			tileAttribute ("power", key: "SECONDARY_CONTROL") {
-				attributeState "power", label:'${currentValue} W'
-			}
-		}
-		standardTile("refresh", "device.refresh", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
-			state "default", label:"", action:"refresh.refresh", icon:"st.secondary.refresh"
-		}
-		main "switch"
-		details(["switch", "refresh"])
-	}
+    tiles(scale: 2) {
+        multiAttributeTile(name: "fanSpeed", type: "generic", width: 6, height: 4, canChangeIcon: true) {
+            tileAttribute("device.fanSpeed", key: "PRIMARY_CONTROL") {
+                attributeState "0", label: "off", action: "switch.on", icon: "st.thermostat.fan-off", backgroundColor: "#ffffff"
+                attributeState "1", label: "low", action: "switch.off", icon: "st.thermostat.fan-on", backgroundColor: "#00a0dc"
+                attributeState "2", label: "medium", action: "switch.off", icon: "st.thermostat.fan-on", backgroundColor: "#00a0dc"
+                attributeState "3", label: "high", action: "switch.off", icon: "st.thermostat.fan-on", backgroundColor: "#00a0dc"
+            }
+            tileAttribute("device.fanSpeed", key: "VALUE_CONTROL") {
+                attributeState "VALUE_UP", action: "raiseFanSpeed"
+                attributeState "VALUE_DOWN", action: "lowerFanSpeed"
+            }
+        }
+
+        standardTile("refresh", "device.switch", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
+            state "default", label: '', action: "refresh.refresh", icon: "st.secondary.refresh"
+        }
+
+        standardTile("lqi", "device.lqi", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
+            state "default", label: 'LQI: ${currentValue}'
+        }
+
+        standardTile("rssi", "device.rssi", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
+            state "default", label: 'RSSI: ${currentValue}dBm'
+        }
+
+        main "fanSpeed"
+        details(["fanSpeed", "refresh", "lqi", "rssi"])
+    }
 }
 
 // Parse incoming device messages to generate events
@@ -113,17 +136,16 @@ def on() {
     sendEvent(name: "switch", value: "on", displayed: true)
 }
 
-def setCoolingSetpoint(temperature){
-	if (state.switch=="on") {
-		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+temperature+'"}')
-		sendEvent(name: "airConditionerMode", value: "cool", displayed: true)
-	}
-	sendEvent(name: "coolingSetpoint", value: temperature as int, unit: "C", displayed: true)
-    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+temperature+'"}')
-//EDIÇÃO
-
-//VENTILADOR
-
+def setFanSpeed(speed) {
+    if (speed as Integer == 0) {
+        off()
+    } else if (speed as Integer == 1) {
+        low()
+    } else if (speed as Integer == 2) {
+        medium()
+    } else if (speed as Integer == 3) {
+        high()
+    }
 }
 
 def raiseFanSpeed() {
@@ -137,7 +159,7 @@ def lowerFanSpeed() {
 def low() {
 	sendTasmota('{"Protocol":"NEC","Bits":32,"Data":"0X00FF906F"}')
   
-  sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
+  sendEvent(name: "FanSpeed", value: "low", displayed: true)
 }
 
 
@@ -146,81 +168,17 @@ def low() {
 def medium() {
 	sendTasmota('{"Protocol":"NEC","Bits":32,"Data":"0x00FFE01F"}')
   
-  sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
+  sendEvent(name: "FanSpeed", value: "medium", displayed: true)
 }
 
 def high() {
 	sendTasmota('{"Protocol":"NEC","Bits":32,"Data":"0X00FFE21D"}')
   
-  sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
+  sendEvent(name: "FanSpeed", value: "high", displayed: true)
 }
 
 //
 
-
-
-
-
-}
-
-def heat() {
-	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Heat","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-   	sendEvent(name: "airConditionerMode", value: "heat", displayed: true)
-}
-
-def cool() {
-	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    	sendEvent(name: "airConditionerMode", value: "cool", displayed: true)
-}
-
-def auto() {
-	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
-}
-
-
-def fanAuto() {
-	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Auto","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    	sendEvent(name: "fanMode", value: "auto", displayed: true)
-}
-
-def fanCirculate() {
-	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Low","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    	sendEvent(name: "fanMode", value: "min", displayed: true)
-}
-
-def fanOn() {
-	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Max","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    sendEvent(name: "fanMode", value: "max", displayed: true)
-}
-
-//fim edição
-
-def setThermostatMode(mode) {
-    //"heat", "cool", "emergency heat", "auto", "off"
-	// if (mode!="cool" && mode!="auto" && mode!="fanOnly" && mode!="dry") {
-    if (mode!="cool" && mode!="auto" && mode!="heat" && mode!="emergency heat" && mode!="dry") { //editei aqui jorge
-		sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
-		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-		return
-	}
-	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-	sendEvent(name: "airConditionerMode", value: mode, displayed: true)
-
-}
-
-def setThermostatFanMode(mode) {
-    //"auto", "circulate", "on"
-	//if (mode!="low" && mode!="medium" && mode!="high" && mode!="auto") {
-    if (mode!="auto" && mode!="circulate" && mode!="on") {
-		sendEvent(name: "fanMode", value: "auto", displayed: true)
-		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-	} else {
-		sendEvent(name: "fanMode", value: mode, displayed: true)
-		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-	}
-	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-}
 
 def refresh() {
 	log.debug "refresh() called"
@@ -260,11 +218,10 @@ def configureHealthCheck() {
 def installed() {
 	log.debug "in installed()"
 	state.switch="off"
+	state.switch="on"
 	sendEvent(name: "switch", value: "off", displayed: true)
-	sendEvent(name: "coolingSetpoint", value: 27, unit: "C")
-	sendEvent(name: "supportedAcModes", value:["auto", "cool","dry","fanOnly"])
-	sendEvent(name: "supportedAcFanModes", value:["auto", "low", "medium", "high", "turbo"])
-	sendEvent(name: "airConditionerMode", value: "auto", displayed: false)
+	sendEvent(name: "switch", value: "on", displayed: true)
+	sendEvent(name: "FanSpeed", value:["low", "medium", "high"])
 }
 
 
@@ -295,11 +252,3 @@ def sendTasmota(command) {
 	def hubAction = new hubitat.device.HubAction(options, null) //Alterei
 	sendHubCommand(hubAction)
 }
-
-def getVENDOR() {
-	return (settings.ACvendor ?: "SAMSUNG_AC")
-}
-
-def getFANMODE() {
-	return (device.currentValue("thermostatFanMode") == "turbo" ? "max" : device.currentValue("thermostatFanMode"))
-} 
