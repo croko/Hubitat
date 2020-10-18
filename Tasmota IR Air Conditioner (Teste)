@@ -18,10 +18,12 @@ metadata {
 		capability "Configuration"
 		capability "Refresh"
 		capability "Switch"
-		capability "Thermostat"
+		capability "Thermostat" //Jorge
 		capability "ThermostatCoolingSetpoint" //Ajustei
 		capability "ThermostatMode"            //Ajustei
 		capability "ThermostatFanMode"         //Ajustei
+		capability "Air Conditioner Mode" //Jorge
+		capability "Air Conditioner Fan Mode" //Jorge
 		capability "HealthCheck"               //Ajustei
 		//attribute "power", "number"
 	}
