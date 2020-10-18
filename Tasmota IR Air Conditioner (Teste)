@@ -129,17 +129,33 @@ def setCoolingSetpoint(temperature){
 
 def heat() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Heat","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    send_Event(name: "airConditionerMode", value: "heat",descriptionText: "Air Conditioner Mode set to heat", isStateChange: true)
+    sendEvent(name: "airConditionerMode", value: "heat", displayed: true)
 }
 
 def cool() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    send_Event(name: "airConditionerMode", value: "cool",descriptionText: "Air Conditioner Mode set to cool", isStateChange: true)
+    sendEvent(name: "airConditionerMode", value: "cool", displayed: true)
 }
 
 def auto() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    send_Event(name: "airConditionerMode", value: "auto",descriptionText: "Air Conditioner Mode set to auto", isStateChange: true)
+    sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
+}
+
+
+def fanAuto() {
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Auto","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+    sendEvent(name: "fanMode", value: "auto", displayed: true)
+}
+
+def fanCirculate() {
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Min","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+    sendEvent(name: "fanMode", value: "min", displayed: true)
+}
+
+def fanOn() {
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Max","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+    sendEvent(name: "fanMode", value: "max", displayed: true)
 }
 
 //fim edição
