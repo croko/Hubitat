@@ -163,13 +163,13 @@ def fanOn() {
 
 def setThermostatMode(mode) {
     //"heat", "cool", "emergency heat", "auto", "off"
-	if (mode!="cool" && mode!="auto" && mode!="fanOnly" && mode!="dry") {
-    // if (mode!="cool" && mode!="auto" && mode!="heat" && mode!="emergency heat" && mode!="dry") { //editei aqui jorge
+	// if (mode!="cool" && mode!="auto" && mode!="fanOnly" && mode!="dry") {
+    if (mode!="cool" && mode!="auto" && mode!="heat" && mode!="emergency heat" && mode!="dry") { //editei aqui jorge
 		sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
+		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 		return
 	}
-	if (state.switch="on") {
-		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 	}
 	sendEvent(name: "airConditionerMode", value: mode, displayed: true)
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
@@ -181,11 +181,11 @@ def setThermostatFanMode(mode) {
 	//if (mode!="low" && mode!="medium" && mode!="high" && mode!="auto") {
     if (mode!="auto" && mode!="circulate" && mode!="on") {
 		sendEvent(name: "fanMode", value: "auto", displayed: true)
+		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 	} else {
 		sendEvent(name: "fanMode", value: mode, displayed: true)
 	}
-	if (state.switch=="on") {
-		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 	}
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 }
