@@ -225,7 +225,9 @@ def configureHealthCheck() {
 def installed() {
 	log.debug "in installed()"
 	state.switch="off"
+	state.switch="on"  // JORGE
 	sendEvent(name: "switch", value: "off", displayed: true)
+	sendEvent(name: "switch", value: "on", displayed: true)  // JORGE
 	sendEvent(name: "coolingSetpoint", value: 27, unit: "C")
 	sendEvent(name: "supportedAcModes", value:["auto", "cool","dry","fanOnly"])
 	sendEvent(name: "supportedAcFanModes", value:["auto", "low", "medium", "high", "turbo"])
