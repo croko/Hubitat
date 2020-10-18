@@ -122,7 +122,7 @@ def setCoolingSetpoint(temperature){
 		sendEvent(name: "airConditionerMode", value: "cool", displayed: true)
 	}
 	sendEvent(name: "coolingSetpoint", value: temperature as int, unit: "C", displayed: true)
-
+    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+temperature+'"}')
 //EDIÇÃO
 
 }
@@ -149,7 +149,7 @@ def fanAuto() {
 }
 
 def fanCirculate() {
-	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Min","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Low","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
     sendEvent(name: "fanMode", value: "min", displayed: true)
 }
 
@@ -162,8 +162,8 @@ def fanOn() {
 
 def setThermostatMode(mode) {
     //"heat", "cool", "emergency heat", "auto", "off"
-	//if (mode!="cool" && mode!="auto" && mode!="fanOnly" && mode!="dry") {
-    if (mode!="cool" && mode!="auto" && mode!="heat" && mode!="emergency heat" && mode!="dry") {
+	if (mode!="cool" && mode!="auto" && mode!="fanOnly" && mode!="dry") {
+    // if (mode!="cool" && mode!="auto" && mode!="heat" && mode!="emergency heat" && mode!="dry") { //editei aqui jorge
 		sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
 		return
 	}
