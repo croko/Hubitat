@@ -120,7 +120,30 @@ def setCoolingSetpoint(temperature){
 		sendEvent(name: "airConditionerMode", value: "cool", displayed: true)
 	}
 	sendEvent(name: "coolingSetpoint", value: temperature as int, unit: "C", displayed: true)
+
+#EDIÇÃO
+
 }
+
+def heat() {
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Heat","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	log_debug "Executing 'heat'"
+	send_Event(name: "thermostatMode", value: "heat", descriptionText: "Thermostat Mode set to heat", isStateChange: true)
+}
+
+def cool() {
+	log_debug "Executing 'cool'"
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	send_Event(name: "thermostatMode", value: "cool", descriptionText: "Thermostat Mode set to cool", isStateChange: true)
+}
+
+def auto() {
+	log_debug "Executing 'auto'"
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	send_Event(name: "thermostatMode", value: "cool", descriptionText: "Thermostat Mode set to cool", isStateChange: true)
+}
+
+#fim edição
 
 def setThermostatMode(mode) {
     //"heat", "cool", "emergency heat", "auto", "off"
