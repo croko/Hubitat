@@ -162,9 +162,6 @@ def low() {
   sendEvent(name: "FanSpeed", value: "low", displayed: true)
 }
 
-
-{"Protocol":"NEC","Bits":32,"Data":"0x00FFE01F"}
-
 def medium() {
 	sendTasmota('{"Protocol":"NEC","Bits":32,"Data":"0x00FFE01F"}')
   
