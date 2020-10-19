@@ -1,6 +1,6 @@
 /**
- *  Tasmota IR Air Conditioner 0.0.1.1 (alpha preview)
- *	Copyright 2020 Jaewon Park
+ *  Tasmota IR Thermostat 0.0.1
+ *	Copyright 2020 Jorge Palmeira
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *	in compliance with the License. You may obtain a copy of the License at:
@@ -13,7 +13,7 @@
  *
  */
 metadata {
-	definition (name: "Tasmota IR Air Conditioner (Preview)", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.airconditioner") { 
+	definition (name: "Tasmota IR Air Conditioner (Teste)", namespace: "jorgespneto", author: "Jorge Palmeira", ocfDeviceType: "oic.d.thermostat") { 
 		capability "Actuator"
 		capability "Configuration"
 		capability "Refresh"
@@ -98,7 +98,7 @@ def processPower(p) {
 		log.debug "	switch off-->on"
 		sendEvent(name: "switch", value: "on", displayed: true)
 		state.switch="on"
-		sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
+		sendEvent(name: "ThermostatMode", value: "auto", displayed: true)
 	}
 	if (p <= offThresholdVal && state.switch == "on") {
 		log.debug "	switch on-->off"
@@ -114,16 +114,16 @@ def off() {
 }
 
 def on() {
-	//sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("airConditionerMode")+'","FanSpeed":"Auto","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	//sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("ThermostatMode")+'","FanSpeed":"Auto","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-	sendEvent(name: "airConditionerMode", value: "auto", displayed: true, isStateChange: true)
+	sendEvent(name: "ThermostatMode", value: "auto", displayed: true, isStateChange: true)
     sendEvent(name: "switch", value: "on", displayed: true)
 }
 
 def setCoolingSetpoint(temperature){
 	if (state.switch=="on") {
 		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+temperature+'"}')
-		sendEvent(name: "airConditionerMode", value: "cool", displayed: true)
+		sendEvent(name: "ThermostatMode", value: "cool", displayed: true)
 	}
 	sendEvent(name: "coolingSetpoint", value: temperature as int, unit: "C", displayed: true, isStateChange: true)
     sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+temperature+'"}')
@@ -133,17 +133,17 @@ def setCoolingSetpoint(temperature){
 
 def heat() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Heat","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-   	sendEvent(name: "airConditionerMode", value: "heat", displayed: true, isStateChange: true)
+   	sendEvent(name: "ThermostatMode", value: "heat", displayed: true, isStateChange: true)
 }
 
 def cool() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    	sendEvent(name: "airConditionerMode", value: "cool", displayed: true, isStateChange: true)
+    	sendEvent(name: "ThermostatMode", value: "cool", displayed: true, isStateChange: true)
 }
 
 def auto() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    sendEvent(name: "airConditionerMode", value: "auto", displayed: true, isStateChange: true)
+    sendEvent(name: "ThermostatMode", value: "auto", displayed: true, isStateChange: true)
 }
 
 
@@ -168,12 +168,12 @@ def setThermostatMode(mode) {
     //"heat", "cool", "emergency heat", "auto", "off"
 	// if (mode!="cool" && mode!="auto" && mode!="fanOnly" && mode!="dry") {
     if (mode!="cool" && mode!="auto" && mode!="heat" && mode!="emergency heat" && mode!="dry") { //editei aqui jorge
-		sendEvent(name: "airConditionerMode", value: "auto", displayed: true, isStateChange: true)
+		sendEvent(name: "ThermostatMode", value: "auto", displayed: true, isStateChange: true)
 		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 		return
 	}
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-	sendEvent(name: "airConditionerMode", value: mode, displayed: true, isStateChange: true)
+	sendEvent(name: "ThermostatMode", value: mode, displayed: true, isStateChange: true)
 
 }
 
@@ -234,7 +234,7 @@ def installed() {
 	sendEvent(name: "coolingSetpoint", value: 27, unit: "C")
 	sendEvent(name: "supportedAcModes", value:["auto", "cool","dry","fanOnly"])
 	sendEvent(name: "supportedAcFanModes", value:["auto", "low", "medium", "high", "turbo"])
-	sendEvent(name: "airConditionerMode", value: "auto", displayed: false)
+	sendEvent(name: "ThermostatMode", value: "auto", displayed: false)
 }
 
 
