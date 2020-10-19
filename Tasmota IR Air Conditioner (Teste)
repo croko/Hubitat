@@ -106,7 +106,21 @@ def processPower(p) {
 
 		state.switch="off"
 	}
-}	
+}
+
+//initialize
+
+def initialize() {
+    sendEvent(name: "supportedThermostatModes", value: ["off", "cool"])
+    if (device.currentThermostatMode == null) {
+        setThermostatMode("cool")
+    }
+    if (device.currentValue("coolingSetpoint") == null) {
+        setCoolingSetpoint(20)
+    }
+}
+
+//
 
 def off() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"Off"}')
@@ -114,7 +128,9 @@ def off() {
 }
 
 def on() {
-	//sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("airConditionerMode")+'","FanSpeed":"Auto","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	//sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.
+	
+	Value("airConditionerMode")+'","FanSpeed":"Auto","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 	sendEvent(name: "airConditionerMode", value: "auto", displayed: true, isStateChange: true)
     sendEvent(name: "switch", value: "on", displayed: true)
