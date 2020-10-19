@@ -106,21 +106,7 @@ def processPower(p) {
 
 		state.switch="off"
 	}
-}
-
-//initialize
-
-def initialize() {
-    sendEvent(name: "supportedThermostatModes", value: ["off", "cool"])
-    if (device.currentThermostatMode == null) {
-        setThermostatMode("cool")
-    }
-    if (device.currentValue("coolingSetpoint") == null) {
-        setCoolingSetpoint(20)
-    }
-}
-
-//
+}	
 
 def off() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"Off"}')
