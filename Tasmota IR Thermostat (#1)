@@ -56,11 +56,10 @@ metadata {
         attribute "maxUpdateInterval", "number"
         attribute "preEmergencyMode", "string"
         attribute "thermostatOperatingState", "string"
-	attribute thermostatOperatingState - ENUM ["heating", "pending cool", "pending heat", "vent economizer", "idle", "cooling", "fan only"]
-	attribute "thermostatFanMode", "string"
-	attribute thermostatFanMode - ENUM ["on", "circulate", "auto"]
+	attribute "thermostatFanMode", "on"		
+	attribute "thermostatFanMode", "circulate"
+	attribute "thermostatFanMode", "auto"
 	attribute "thermostatMode", "string"
-	attribute thermostatMode - ENUM ["auto", "off", "heat", "emergency heat", "cool"]
 	attribute "thermostatMode", "off"
 	attribute "thermostatMode", "auto"
 	attribute "thermostatMode", "heat"
@@ -71,34 +70,19 @@ metadata {
 }
 
 def installed() {
-	sendEvent(name: "minCoolTemp", value: 16, unit: "C")
-	sendEvent(name: "maxCoolTemp", value: 30, unit: "C")
-	sendEvent(name: "maxHeatTemp", value: 30, unit: "C")
-	sendEvent(name: "minHeatTemp", value: 16, unit: "C")
-	sendEvent(name: "thermostatThreshold", value: 1.0, unit: "F")
 	sendEvent(name: "temperature", value: 20, unit: "C")
-	sendEvent(name: "heatingSetpoint", value: 26, unit: "C")
-	sendEvent(name: "thermostatSetpoint", value: 20, unit: "C")
+	sendEvent(name: "coolingSetpoint", value: 17, unit: "C")
 	sendEvent(name: "coolingSetpoint", value: 20, unit: "C")
 	sendEvent(name: "thermostatMode", value: "off")
 	sendEvent(name: "thermostatMode", value: "cool")
 	sendEvent(name: "thermostatMode", value: "auto")
 	sendEvent(name: "thermostatMode", value: "heat")
-	sendEvent(name: "thermostatMode", value: "emergency heat")
-	sendEvent(name: "thermostatOperatingState", value: "heating")
-	sendEvent(name: "thermostatOperatingState", value: "pending cool")
-	sendEvent(name: "thermostatOperatingState", value: "pending heat")
-	sendEvent(name: "thermostatOperatingState", value: "vent economizer")
-	sendEvent(name: "thermostatOperatingState", value: "cooling")
 	sendEvent(name: "thermostatOperatingState", value: "fan only")
-	sendEvent(name: "thermostatOperatingState", value: "idle")
 	sendEvent(name: "thermostatFanMode", value: "on")
 	sendEvent(name: "thermostatFanMode", value: "circulate")
 	sendEvent(name: "thermostatFanMode", value: "auto")
 	sendEvent(name: "switch", value: "on")
 	sendEvent(name: "switch", value: "off")
-    sendEvent(name: "maxUpdateInterval", value: 65)
-    sendEvent(name: "lastTempUpdate", value: new Date() )
 }
 
 def updated() {
@@ -206,14 +190,6 @@ def auto() {
     sendEvent(name: "thermostatMode", value: "auto")
 }
 
-def auto() {
-    setThermostatMode("cool")
-}
-
-def heat() {
-    setThermostatMode("cool")
-}
-
 def emergencyHeat() {
-    setThermostatMode("cool")
+    setThermostatMode("emergency heat")
 }
