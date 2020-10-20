@@ -17,7 +17,7 @@
 
 metadata {
     definition(
-        name: "Tasmota IR Thermostat",
+        name: "Tasmota IR Thermostat (Virtual Teste)",
         namespace: "jorgepalmeira",
         author: "Jorge Palmeira",
     ) {
