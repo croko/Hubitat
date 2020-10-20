@@ -56,11 +56,16 @@ metadata {
         attribute "maxUpdateInterval", "number"
         attribute "preEmergencyMode", "string"
         attribute "thermostatOperatingState", "string"
-	attribute thermostatFanMode - ENUM ["auto", "circulate", "on"]
-	attribute thermostatFanMode - ENUM ["on", "circulate", "auto"]
-	attribute thermostatMode - ENUM ["auto", "off", "heat", "emergency heat", "cool"]
 	attribute thermostatOperatingState - ENUM ["heating", "pending cool", "pending heat", "vent economizer", "idle", "cooling", "fan only"]
-
+	attribute "thermostatFanMode", "string"
+	attribute thermostatFanMode - ENUM ["on", "circulate", "auto"]
+	attribute "thermostatMode", "string"
+	attribute thermostatMode - ENUM ["auto", "off", "heat", "emergency heat", "cool"]
+	attribute "thermostatMode", "off"
+	attribute "thermostatMode", "auto"
+	attribute "thermostatMode", "heat"
+	attribute "thermostatMode", "emergency heat"
+	attribute "thermostatMode", "cool"
 	}
 
 }
@@ -77,6 +82,15 @@ def installed() {
 	sendEvent(name: "coolingSetpoint", value: 20, unit: "C")
 	sendEvent(name: "thermostatMode", value: "off")
 	sendEvent(name: "thermostatMode", value: "cool")
+	sendEvent(name: "thermostatMode", value: "auto")
+	sendEvent(name: "thermostatMode", value: "heat")
+	sendEvent(name: "thermostatMode", value: "emergency heat")
+	sendEvent(name: "thermostatOperatingState", value: "heating")
+	sendEvent(name: "thermostatOperatingState", value: "pending cool")
+	sendEvent(name: "thermostatOperatingState", value: "pending heat")
+	sendEvent(name: "thermostatOperatingState", value: "vent economizer")
+	sendEvent(name: "thermostatOperatingState", value: "cooling")
+	sendEvent(name: "thermostatOperatingState", value: "fan only")
 	sendEvent(name: "thermostatOperatingState", value: "idle")
 	sendEvent(name: "switch", value: "on")
 	sendEvent(name: "switch", value: "off")
@@ -96,6 +110,7 @@ def updated() {
 def parse(String description) {
 }
 
+// Inicia aqui comandos sem função no virtual
 // def installed() {
 //     initialize()
 // }
@@ -132,6 +147,7 @@ def parse(String description) {
 //     }
 //     sendEvent(name: attr, value: value)
 // }
+// termina aqui comandos sem função no virtual
 
 def on() {
     sendEvent(name: "switch", value: "on")
@@ -143,15 +159,6 @@ def off() {
 
 def setSpeed(speed) {
     parent.setSpeed(speed)
-}
-
-def setLevel(level) {
-    if (level < 0) {
-        level = 0;
-    } else if (level > 99) {
-        level = 99
-    }
-    parent.setLevel(level)
 }
 
 def setCoolingSetpoint(temperature) {
@@ -183,10 +190,19 @@ def setThermostatMode(mode) {
 
 def cool() {
     setThermostatMode("cool")
+    sendEvent(name: "thermostatMode", value: "cool")
 }
 
-// These are just here to fulfill the contract for the ThermostatMode capability
-// These modes aren't actually supported, nor do them make sense for this device
+def heat() {
+    setThermostatMode("cool")
+    sendEvent(name: "thermostatMode", value: "heat")
+}
+
+def auto() {
+    setThermostatMode("auto")
+    sendEvent(name: "thermostatMode", value: "auto")
+}
+
 def auto() {
     setThermostatMode("cool")
 }
