@@ -33,6 +33,7 @@ metadata {
         capability "ThermostatSetpoint"
         capability "TemperatureMeasurement"
         capability "ThermostatMode"
+	capability "ThermostatFanMode"
 
 		command "heatUp"
 		command "heatDown"
@@ -44,7 +45,7 @@ metadata {
 		command "setMaxHeatTemp", ["number"]
 		command "setMinCoolTemp", ["number"]
 		command "setMaxCoolTemp", ["number"]
-        command "setMaxUpdateInterval", ["number"]
+        	command "setMaxUpdateInterval", ["number"]
 
 		attribute "thermostatThreshold", "number"
 		attribute "minHeatTemp", "number"
@@ -55,53 +56,89 @@ metadata {
         attribute "maxUpdateInterval", "number"
         attribute "preEmergencyMode", "string"
         attribute "thermostatOperatingState", "string"
+	attribute thermostatFanMode - ENUM ["auto", "circulate", "on"]
+	attribute thermostatFanMode - ENUM ["on", "circulate", "auto"]
+	attribute thermostatMode - ENUM ["auto", "off", "heat", "emergency heat", "cool"]
+	attribute thermostatOperatingState - ENUM ["heating", "pending cool", "pending heat", "vent economizer", "idle", "cooling", "fan only"]
+
 	}
 
 }
 
 def installed() {
-    initialize()
+	sendEvent(name: "minCoolTemp", value: 16, unit: "C")
+	sendEvent(name: "maxCoolTemp", value: 30, unit: "C")
+	sendEvent(name: "maxHeatTemp", value: 30, unit: "C")
+	sendEvent(name: "minHeatTemp", value: 16, unit: "C")
+	sendEvent(name: "thermostatThreshold", value: 1.0, unit: "F")
+	sendEvent(name: "temperature", value: 20, unit: "C")
+	sendEvent(name: "heatingSetpoint", value: 26, unit: "C")
+	sendEvent(name: "thermostatSetpoint", value: 20, unit: "C")
+	sendEvent(name: "coolingSetpoint", value: 20, unit: "C")
+	sendEvent(name: "thermostatMode", value: "off")
+	sendEvent(name: "thermostatMode", value: "cool")
+	sendEvent(name: "thermostatOperatingState", value: "idle")
+	sendEvent(name: "switch", value: "on")
+	sendEvent(name: "switch", value: "off")
+    sendEvent(name: "maxUpdateInterval", value: 65)
+    sendEvent(name: "lastTempUpdate", value: new Date() )
 }
 
 def updated() {
-    initialize()
+	sendEvent(name: "minCoolTemp", value: 16, unit: "C")
+	sendEvent(name: "maxCoolTemp", value: 30, unit: "C")
+	sendEvent(name: "maxHeatTemp", value: 16, unit: "C")
+	sendEvent(name: "minHeatTemp", value: 30, unit: "C")
+    sendEvent(name: "maxUpdateInterval", value: 65)
+    sendEvent(name: "lastTempUpdate", value: new Date() )
 }
 
-def initialize() {
-    sendEvent(name: "supportedThermostatModes", value: ["off", "cool"])
-    if (device.currentThermostatMode == null) {
-        setThermostatMode("cool")
-    }
-    if (device.currentThermostatSetpoint == null) {
-        setCoolingSetpoint(78)
-    }
+def parse(String description) {
 }
 
-def parse(command) {
-    def parts = command.split(" ")
-    def attr = parts[0]
-    def value = parts[1]
+// def installed() {
+//     initialize()
+// }
 
-    if (attr == "speed") {
-        if (value == "off") {
-            state.lastSpeed = device.currentSpeed
-            sendEvent(name: "switch", value: "off")
-        } else {
-            if (value == "on" && state.lastSpeed && state.lastSpeed != "off") {
-                value = state.lastSpeed
-            }
-            sendEvent(name: "switch", value: "on")
-        }
-    }
-    sendEvent(name: attr, value: value)
-}
+// def updated() {
+//     initialize()
+// }
+
+// def initialize() {
+//     sendEvent(name: "supportedThermostatModes", value: ["off", "cool"])
+//  if (device.currentThermostatMode == null) {
+//         setThermostatMode("cool")
+//     }
+// //     if (device.currentThermostatSetpoint == null) {
+//         setCoolingSetpoint(78)
+//     }
+// }
+
+// def parse(command) {
+//     def parts = command.split(" ")
+//     def attr = parts[0]
+//     def value = parts[1]
+
+//     if (attr == "speed") {
+//         if (value == "off") {
+//             state.lastSpeed = device.currentSpeed
+//             sendEvent(name: "switch", value: "off")
+//         } else {
+//             if (value == "on" && state.lastSpeed && state.lastSpeed != "off") {
+//                 value = state.lastSpeed
+//             }
+//             sendEvent(name: "switch", value: "on")
+//         }
+//     }
+//     sendEvent(name: attr, value: value)
+// }
 
 def on() {
-    parent.on()
+    sendEvent(name: "switch", value: "on")
 }
 
 def off() {
-    parent.off()
+    sendEvent(name: "switch", value: "off")
 }
 
 def setSpeed(speed) {
