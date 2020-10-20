@@ -40,21 +40,7 @@ metadata {
 		command "coolUp"
 		command "coolDown"
 		command "setTemperature", ["number"]
-		command "setThermostatThreshold", ["number"]
-		command "setMinHeatTemp", ["number"]
-		command "setMaxHeatTemp", ["number"]
-		command "setMinCoolTemp", ["number"]
-		command "setMaxCoolTemp", ["number"]
-        	command "setMaxUpdateInterval", ["number"]
 
-		attribute "thermostatThreshold", "number"
-		attribute "minHeatTemp", "number"
-		attribute "maxHeatTemp", "number"
-		attribute "minCoolTemp", "number"
-		attribute "maxCoolTemp", "number"
-        attribute "lastTempUpdate", "date"
-        attribute "maxUpdateInterval", "number"
-        attribute "preEmergencyMode", "string"
         attribute "thermostatOperatingState", "string"
 	attribute "thermostatFanMode", "on"		
 	attribute "thermostatFanMode", "circulate"
@@ -67,54 +53,58 @@ metadata {
 	attribute "thermostatMode", "cool"
 	}
 
+	}
+	preferences {
+		input name: "TasmotaIP", title:"local IP address of Tasmota IR", type: "string", required: true
+		input name: "username", title:"Username of Tasmota IR", type: "string"
+		input name: "password", title:"Password of Tasmota IR", type: "string"
+		input name: "ACvendor", title:"Vendor string of Air Conditioner", options: ["SAMSUNG_AC", "LG", "LG2", "COOLIX", "DAIKIN", "KELVINATOR", "MITSUBISHI_AC", "GREE", "ARGO", "TROTEC", "TOSHIBA_AC", "FUJITSU_AC", "MIDEA", "HAIER_AC", "HITACHI_AC", "HAIER_AC_YRW02", "WHIRLPOOL_AC", "ELECTRA_AC", "PANASONIC_AC", "DAIKIN2", "VESTEL_AC", "TECO", "TCL112AC", "MITSUBISHI_HEAVY_88", "MITSUBISHI_HEAVY_152", "DAIKIN216", "SHARP_AC", "GOODWEATHER", "DAIKIN160", "NEOCLIMA", "DAIKIN176", "DAIKIN128"], type: "enum", required: true, defaultValue: "SAMSUNG_AC"
+		input name: "offThreshold", title:"Off Threshold Power (W)", type: "number", required: true, defaultValue: 3.9
+		input name: "onThreshold", title:"On Threshold Power (W)", type: "number", required: true, defaultValue: 4
+	}
+	
 }
 
-def installed() {
-	sendEvent(name: "temperature", value: 20, unit: "C")
-	sendEvent(name: "coolingSetpoint", value: 17, unit: "C")
-	sendEvent(name: "coolingSetpoint", value: 20, unit: "C")
-	sendEvent(name: "thermostatMode", value: "off")
-	sendEvent(name: "thermostatMode", value: "cool")
-	sendEvent(name: "thermostatMode", value: "auto")
-	sendEvent(name: "thermostatMode", value: "heat")
-	sendEvent(name: "thermostatOperatingState", value: "fan only")
-	sendEvent(name: "thermostatFanMode", value: "on")
-	sendEvent(name: "thermostatFanMode", value: "circulate")
-	sendEvent(name: "thermostatFanMode", value: "auto")
-	sendEvent(name: "switch", value: "on")
-	sendEvent(name: "switch", value: "off")
-}
+// def installed() {
+// 	sendEvent(name: "temperature", value: 20, unit: "C")
+// 	sendEvent(name: "coolingSetpoint", value: 17, unit: "C")
+// 	sendEvent(name: "coolingSetpoint", value: 20, unit: "C")
+// 	sendEvent(name: "thermostatMode", value: "off")
+// 	sendEvent(name: "thermostatMode", value: "cool")
+// 	sendEvent(name: "thermostatMode", value: "auto")
+// 	sendEvent(name: "thermostatMode", value: "heat")
+// 	sendEvent(name: "thermostatOperatingState", value: "fan only")
+// 	sendEvent(name: "thermostatFanMode", value: "on")
+// 	sendEvent(name: "thermostatFanMode", value: "circulate")
+// 	sendEvent(name: "thermostatFanMode", value: "auto")
+// 	sendEvent(name: "switch", value: "on")
+// 	sendEvent(name: "switch", value: "off")
+// }
 
 def updated() {
-	sendEvent(name: "minCoolTemp", value: 16, unit: "C")
-	sendEvent(name: "maxCoolTemp", value: 30, unit: "C")
-	sendEvent(name: "maxHeatTemp", value: 16, unit: "C")
-	sendEvent(name: "minHeatTemp", value: 30, unit: "C")
-    sendEvent(name: "maxUpdateInterval", value: 65)
-    sendEvent(name: "lastTempUpdate", value: new Date() )
 }
 
 def parse(String description) {
 }
 
-// Inicia aqui comandos sem função no virtual
-// def installed() {
-//     initialize()
-// }
+def installed() {
+    initialize()
+}
 
 // def updated() {
 //     initialize()
 // }
 
-// def initialize() {
-//     sendEvent(name: "supportedThermostatModes", value: ["off", "cool"])
-//  if (device.currentThermostatMode == null) {
-//         setThermostatMode("cool")
-//     }
-// //     if (device.currentThermostatSetpoint == null) {
-//         setCoolingSetpoint(78)
-//     }
-// }
+def initialize() {
+    sendEvent(name: "supportedThermostatModes", value: ["off", "cool"])
+    if (device.currentThermostatMode == null) {
+        setThermostatMode("cool")
+    }
+    if (device.currentThermostatSetpoint == null) {
+        setCoolingSetpoint(17)
+    }
+}
+
 
 // def parse(command) {
 //     def parts = command.split(" ")
@@ -138,19 +128,30 @@ def parse(String description) {
 
 def on() {
     sendEvent(name: "switch", value: "on")
+    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 }
 
 def off() {
     sendEvent(name: "switch", value: "off")
+    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"Off"}')
 }
 
 def setSpeed(speed) {
     parent.setSpeed(speed)
+    if (setSpeed == low) {
+        sendEvent(name: "setSpeed", value: "low")
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"1","Temp":"'+temperature+'"}')
+    }
+    if (setSpeed == high) {
+        sendEvent(name: "setSpeed", value: "high")
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"5","Temp":"'+temperature+'"}')
+    }
 }
 
 def setCoolingSetpoint(temperature) {
     sendEvent(name: "thermostatSetpoint", value: temperature)
     sendEvent(name: "coolingSetpoint", value: temperature)
+    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+temperature+'"}')
 }
 
 def clearManualOverride() {
@@ -178,18 +179,86 @@ def setThermostatMode(mode) {
 def cool() {
     setThermostatMode("cool")
     sendEvent(name: "thermostatMode", value: "cool")
+    sendEvent(name: "switch", value: "on")
+    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 }
 
 def heat() {
     setThermostatMode("cool")
     sendEvent(name: "thermostatMode", value: "heat")
+    sendEvent(name: "switch", value: "on")
+    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Heat","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 }
 
 def auto() {
     setThermostatMode("auto")
     sendEvent(name: "thermostatMode", value: "auto")
+    sendEvent(name: "switch", value: "on")
+    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 }
 
 def emergencyHeat() {
     setThermostatMode("emergency heat")
 }
+
+
+def fanAuto() {
+    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Auto","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+    sendEvent(name: "thermostatFanMode", value: "auto", displayed: true)
+}
+
+def fanCirculate() {
+    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Low","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+    sendEvent(name: "thermostatFanMode", value: "min", displayed: true)
+}
+
+def fanOn() {
+    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Max","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+    sendEvent(name: "thermostatFanMode", value: "max", displayed: true)
+}
+
+
+def setThermostatMode(mode) {
+    //"heat", "cool", "emergency heat", "auto", "off"
+	// if (mode!="cool" && mode!="auto" && mode!="fanOnly" && mode!="dry") {
+    if (mode!="cool" && mode!="auto" && mode!="heat" && mode!="emergency heat" && mode!="dry") { //editei aqui jorge
+		sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
+		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+		return
+	}
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	sendEvent(name: "airConditionerMode", value: mode, displayed: true)
+
+}
+
+def setThermostatFanMode(mode) {
+    //"auto", "circulate", "on"
+	//if (mode!="low" && mode!="medium" && mode!="high" && mode!="auto") {
+    if (mode!="auto" && mode!="circulate" && mode!="on") {
+		sendEvent(name: "fanMode", value: "auto", displayed: true)
+		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	} else {
+		sendEvent(name: "fanMode", value: mode, displayed: true)
+		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	}
+	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+}
+
+def sendTasmota(command) {
+	def options = [
+		method: "GET",
+		headers: [HOST: settings.TasmotaIP+":80"],
+		path: "/cm?user=" + (settings.username ?: "") + "&password=" + (settings.password ?: "") + "&cmnd=" + URLEncoder.encode(command, "UTF-8").replaceAll(/\+/,'%20')
+	]
+	log.debug options
+	def hubAction = new hubitat.device.HubAction(options, null) //Alterei
+	sendHubCommand(hubAction)
+}
+
+def getVENDOR() {
+	return (settings.ACvendor ?: "SAMSUNG_AC")
+}
+
+def getFANMODE() {
+	return (device.currentValue("thermostatFanMode") == "turbo" ? "max" : device.currentValue("thermostatFanMode"))
+} 
