@@ -22,21 +22,41 @@ metadata {
         author: "Jorge Palmeira",
     ) {
         capability "Actuator"
+        capability "Sensor"
         capability "Switch"
         capability "SwitchLevel"
         capability "FanControl"
         capability "Initialize"
+        capability "Thermostat"
+		capability "Thermostat Heating Setpoint"
         capability "ThermostatCoolingSetpoint"
         capability "ThermostatSetpoint"
         capability "TemperatureMeasurement"
         capability "ThermostatMode"
 
-        command "setManualOverride", ["number"]
-        command "clearManualOverride"
+		command "heatUp"
+		command "heatDown"
+		command "coolUp"
+		command "coolDown"
+		command "setTemperature", ["number"]
+		command "setThermostatThreshold", ["number"]
+		command "setMinHeatTemp", ["number"]
+		command "setMaxHeatTemp", ["number"]
+		command "setMinCoolTemp", ["number"]
+		command "setMaxCoolTemp", ["number"]
+        command "setMaxUpdateInterval", ["number"]
 
-        attribute "manualOverride", "enum", ["active", "inactive"]
-        attribute "defaultManualOverrideTime", "number"
-    }
+		attribute "thermostatThreshold", "number"
+		attribute "minHeatTemp", "number"
+		attribute "maxHeatTemp", "number"
+		attribute "minCoolTemp", "number"
+		attribute "maxCoolTemp", "number"
+        attribute "lastTempUpdate", "date"
+        attribute "maxUpdateInterval", "number"
+        attribute "preEmergencyMode", "string"
+        attribute "thermostatOperatingState", "string"
+	}
+
 }
 
 def installed() {
