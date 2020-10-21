@@ -2,6 +2,8 @@ metadata {
     definition(name: "Driver do Zero", namespace: "jorge", author: "Jorge Palmeira") {
         capability "Switch"
         capability "Thermostat"
+	capability "ThermostatMode"
+	capability "ThermostatFanMode"
     }
 }
 preferences {
