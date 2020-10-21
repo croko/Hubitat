@@ -1,0 +1,18 @@
+metadata {
+    definition(name: "Driver do Zero", namespace: "jorge", author: "Jorge Palmeira") {
+        capability "Switch"
+    }
+}
+
+
+def installed() {
+    initialize()
+}
+
+def updated() {
+    initialize()
+}
+
+def initialize() {
+
+}
