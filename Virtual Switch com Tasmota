@@ -1,5 +1,5 @@
 metadata {
-    definition(name: "Driver do Zero", namespace: "jorge", author: "Jorge Palmeira") {
+    definition(name: "Tasmota Switch IR", namespace: "jorge", author: "Jorge Palmeira") {
         capability "Switch"
 
     }
@@ -8,7 +8,8 @@ preferences {
 	input name: "TasmotaIP", title:"local IP address of Tasmota IR", type: "string", required: true
 	input name: "username", title:"Username of Tasmota IR", type: "string"
 	input name: "password", title:"Password of Tasmota IR", type: "string"
-	input name: "ACvendor", title:"Vendor string of Air Conditioner", options: ["SAMSUNG_AC", "LG", "LG2", "COOLIX", "DAIKIN", "KELVINATOR", "MITSUBISHI_AC", "GREE", "ARGO", "TROTEC", "TOSHIBA_AC", "FUJITSU_AC", "MIDEA", "HAIER_AC", "HITACHI_AC", "HAIER_AC_YRW02", "WHIRLPOOL_AC", "ELECTRA_AC", "PANASONIC_AC", "DAIKIN2", "VESTEL_AC", "TECO", "TCL112AC", "MITSUBISHI_HEAVY_88", "MITSUBISHI_HEAVY_152", "DAIKIN216", "SHARP_AC", "GOODWEATHER", "DAIKIN160", "NEOCLIMA", "DAIKIN176", "DAIKIN128"], type: "enum", required: true, defaultValue: "SAMSUNG_AC"
+	input name: "OnIRsend", title:"Código IR", type: "string"
+	input name: "OffIRsend", title:"Código IR", type: "string"
 	input name: "offThreshold", title:"Off Threshold Power (W)", type: "number", required: true, defaultValue: 3.9
 	input name: "onThreshold", title:"On Threshold Power (W)", type: "number", required: true, defaultValue: 4
 }
@@ -32,13 +33,13 @@ def initialize() {
 }
 
 def on() { 
-    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+    sendTasmota('IRsend (settings.OnIRsend ?: "")')
     sendEvent(name: "switch", value: "on")
 }
 
 def off() {
-    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"Off"}')
     sendEvent(name: "switch", value: "off")
+    sendTasmota('IRsend (settings.OffIRsend ?: "")')
 }
 
 def sendTasmota(command) {
