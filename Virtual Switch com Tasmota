@@ -8,8 +8,8 @@ preferences {
 	input name: "TasmotaIP", title:"local IP address of Tasmota IR", type: "string", required: true
 	input name: "username", title:"Username of Tasmota IR", type: "string"
 	input name: "password", title:"Password of Tasmota IR", type: "string"
-	input name: "OnIRsend", title:"Código IR", type: "string"
-	input name: "OffIRsend", title:"Código IR", type: "string"
+	input name: "OnIRsend", title:"On - Código IR", type: "string"
+	input name: "OffIRsend", title:"Off - Código IR", type: "string"
 	input name: "offThreshold", title:"Off Threshold Power (W)", type: "number", required: true, defaultValue: 3.9
 	input name: "onThreshold", title:"On Threshold Power (W)", type: "number", required: true, defaultValue: 4
 }
