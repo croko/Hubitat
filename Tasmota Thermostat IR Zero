@@ -3,6 +3,7 @@ metadata {
         capability "Switch"
 	capability "Thermostat"
 	capability "Thermostat Heating Setpoint"
+	capability "Thermostat Cooling Setpoint"
 	capability "Thermostat Setpoint"
 	capability "Sensor"
 	capability "Actuator"
@@ -46,6 +47,11 @@ def off() {
 }
 
 // colei aqui pra baixo
+def setCoolingSetpoint(temperature) {
+    sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+temperature+'"}')
+    sendEvent(name: "coolingSetpoint", value: temperature)
+}
+
 def emergencyStop() {
     sendEvent(name: "thermostatMode", value: "emergency stop")
 }
