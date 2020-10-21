@@ -1,6 +1,11 @@
 metadata {
     definition(name: "Tasmota Thermostat IR Zero", namespace: "jorge", author: "Jorge Palmeira") {
         capability "Switch"
+	capability "Thermostat"
+	capability "Thermostat Heating Setpoint"
+	capability "Thermostat Setpoint"
+	capability "Sensor"
+	capability "Actuator"
 
     }
 }
@@ -15,7 +20,6 @@ preferences {
 
 def parse(String description) {
     log.debug description
-    sendEvent(name: "switch", value: "on")
 }
 
 
@@ -40,6 +44,93 @@ def off() {
     sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"Off"}')
     sendEvent(name: "switch", value: "off")
 }
+
+// colei aqui pra baixo
+def emergencyStop() {
+    sendEvent(name: "thermostatMode", value: "emergency stop")
+}
+
+def heat() {
+	sendEvent(name: "thermostatMode", value: "heat")
+}
+
+def auto() {
+	sendEvent(name: "thermostatMode", value: "auto")
+}
+
+def emergencyHeat() {
+	sendEvent(name: "thermostatMode", value: "emergency heat")
+}
+
+def cool() {
+	sendEvent(name: "thermostatMode", value: "cool")
+}
+
+def poll() {
+	null
+}
+
+
+def setTemperature(value) {
+	sendEvent(name:"temperature", value: value)
+    sendEvent(name: "lastTempUpdate", value: new Date() )
+	runIn(2,'evaluateMode')
+}
+
+def heatUp() {
+	def ts = device.currentValue("heatingSetpoint")
+	setHeatingSetpoint( ts + 1 )
+}
+
+def heatDown() {
+	def ts = device.currentValue("heatingSetpoint")
+	setHeatingSetpoint( ts - 1 )
+}
+
+
+def coolUp() {
+	def ts = device.currentValue("heatingSetpoint")
+	setCoolingSetpoint( ts + 1 )
+}
+
+def coolDown() {
+	def ts = device.currentValue("heatingSetpoint")
+	setCoolingSetpoint( ts - 1 )
+}
+
+def setMinCoolTemp(Double degreesC) {
+	def t = device.currentValue("coolingSetpoint")
+	sendEvent(name: "minCoolTemp", value: degreesC)
+	if (t < degreesC) {
+		setCoolingSetpoint(degreesC)
+	}
+}
+
+def setMaxCoolTemp(Double degreesC) {
+	def t = device.currentValue("coolingSetpoint")
+	sendEvent(name: "maxCoolTemp", value: degreesC)
+	if (t > degreesC) {
+		setCoolingSetpoint(degreesC)
+	}
+}
+
+def setMinHeatTemp(Double degreesC) {
+	def t = device.currentValue("heatingSetpoint")
+	sendEvent(name: "minHeatTemp", value: degreesC)
+	if (t < degreesC) {
+		setHeatingSetpoint(degreesC)
+	}
+}
+
+def setMaxHeatTemp(Double degreesC) {
+	def t = device.currentValue("heatingSetpoint")
+	sendEvent(name: "maxHeatTemp", value: degreesC)
+	if (t > degreesC) {
+		setHeatingSetpoint(degreesC)
+	}
+}
+
+// colei aqui
 
 def sendTasmota(command) {
 	def options = [
