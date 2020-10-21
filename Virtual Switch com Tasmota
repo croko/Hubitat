@@ -32,13 +32,13 @@ def initialize() {
 }
 
 def on() { 
-    sendTasmota('IRsend (settings.OnIRsend ?: "")')
+    sendTasmota('IRsend +ONIR+')
     sendEvent(name: "switch", value: "on")
 }
 
 def off() {
     sendEvent(name: "switch", value: "off")
-    sendTasmota('IRsend (settings.OffIRsend ?: "")')
+    sendTasmota('IRsend +OFFIR+')
 }
 
 def sendTasmota(command) {
@@ -51,14 +51,6 @@ def sendTasmota(command) {
 	def hubAction = new hubitat.device.HubAction(options, null) //Alterei
 	sendHubCommand(hubAction)
 }
-
-def getVENDOR() {
-	return (settings.ACvendor ?: "SAMSUNG_AC")
-}
-
-def getFANMODE() {
-	return (device.currentValue("thermostatFanMode") == "turbo" ? "max" : device.currentValue("thermostatFanMode"))
-} 
 
 def getONIR() {
 	return (settings.OnIRsend ?: "")
