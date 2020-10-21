@@ -32,13 +32,13 @@ def initialize() {
 }
 
 def on() { 
-    sendTasmota('IRsend "(settings.OnIRsend ?: "")"')
+    sendTasmota('IRsend (settings.OnIRsend ?: "")')
     sendEvent(name: "switch", value: "on")
 }
 
 def off() {
     sendEvent(name: "switch", value: "off")
-    sendTasmota('IRsend "(settings.OffIRsend ?: "")"')
+    sendTasmota('IRsend (settings.OffIRsend ?: "")')
 }
 
 def sendTasmota(command) {
