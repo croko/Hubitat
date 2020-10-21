@@ -15,6 +15,7 @@ preferences {
 
 def parse(String description) {
     log.debug description
+    sendEvent(name: "switch", value: "on")
 }
 
 
@@ -30,14 +31,14 @@ def initialize() {
 
 }
 
-def on() {
-    sendEvent(name: "switch", value: "on")
+def on() { 
     sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+    sendEvent(name: "switch", value: "on")
 }
 
 def off() {
-    sendEvent(name: "switch", value: "off")
     sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"Off"}')
+    sendEvent(name: "switch", value: "off")
 }
 
 def sendTasmota(command) {
