@@ -16,7 +16,6 @@ preferences {
 
 def parse(String description) {
     log.debug description
-    sendEvent(name: "switch", value: "on")
 }
 
 
