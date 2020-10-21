@@ -38,7 +38,7 @@ def on() {
 
 def off() {
     sendTasmota('IRsend '+OFFIR)
-    sendEvent(name: "switch", value: "on")
+    sendEvent(name: "switch", value: "off")
 }
 
 def sendTasmota(command) {
