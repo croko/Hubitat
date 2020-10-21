@@ -14,7 +14,7 @@ preferences {
 }
 
 def parse(String description) {
-    log.debug
+    log.debug description
 }
 
 
