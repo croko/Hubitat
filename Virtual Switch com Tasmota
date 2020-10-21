@@ -59,3 +59,11 @@ def getVENDOR() {
 def getFANMODE() {
 	return (device.currentValue("thermostatFanMode") == "turbo" ? "max" : device.currentValue("thermostatFanMode"))
 } 
+
+def getONIR() {
+	return (settings.OnIRsend ?: "")
+}
+
+def getOFFIR() {
+	return (settings.OffIRsend ?: "")
+}
