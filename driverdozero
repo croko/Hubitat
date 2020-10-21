@@ -36,7 +36,34 @@ def on() {
 def off() {
     sendEvent(name: "switch", value: "off")
 }
+def cool() {
+    sendEvent(name: "thermostatMode", value: "cool")
+}
 
+def heat() {
+    sendEvent(name: "thermostatMode", value: "heat")
+}
+
+def auto() {
+    sendEvent(name: "thermostatMode", value: "auto")
+}
+
+def emergencyHeat() {
+    setThermostatMode("emergency heat")
+}
+
+
+def fanAuto() {
+    sendEvent(name: "thermostatFanMode", value: "auto", displayed: true)
+}
+
+def fanCirculate() {
+    sendEvent(name: "thermostatFanMode", value: "min", displayed: true)
+}
+
+def fanOn() {
+    sendEvent(name: "thermostatFanMode", value: "max", displayed: true)
+}
 
 def sendTasmota(command) {
 	def options = [
