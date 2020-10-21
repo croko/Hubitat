@@ -24,9 +24,12 @@ metadata {
 		capability "ThermostatFanMode"         //Ajustei
 		capability "HealthCheck"               //Ajustei
 		//attribute "power", "number"
-	}
+        
+    }
 
-	fingerprint profileId: "0104", deviceId: "0051", inClusters: "0000 0003 0004 0006 0009 0702 0B04", outClusters: "0000 0003 0004 0006 0009 0702 0B04", manufacturer: "Heiman", model: "SmartPlug", deviceJoinName: "에어컨" // fingerprint of Heiman 16A plug
+	simulator {
+
+	}
 
 	preferences {
 		input name: "TasmotaIP", title:"local IP address of Tasmota IR", type: "string", required: true
@@ -58,14 +61,14 @@ metadata {
 // Parse incoming device messages to generate events
 def parse(String description) {
 	log.debug "description is $description"
-	def event = zigbee.getEvent(description)
+//	def event = zigbee.getEvent(description)
 	if (event) {
 		if (event.name == "power") {
 			def powerValue
 			def div = device.getDataValue("divisor")
 			div = div ? (div as int) : 10
 			powerValue = (event.value as Integer)/div
-			//sendEvent(name: "power", value: powerValue, displayed: false)
+			sendEvent(name: "power", value: powerValue, displayed: false)
 			processPower(powerValue)
 		}
 		else if (event.name == "switch") {
@@ -81,7 +84,7 @@ def parse(String description) {
 	}
 	else {
 		log.warn "DID NOT PARSE MESSAGE for description : $description"
-		log.debug zigbee.parseDescriptionAsMap(description)
+//		log.debug zigbee.parseDescriptionAsMap(description)
 	}
 }
 
@@ -107,13 +110,13 @@ def processPower(p) {
 
 def off() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"Off"}')
-    sendEvent(name: "switch", value: "off", displayed: true)
+    sendEvent(name: "switch", value: "off", displayed: true, isStateChange: true)
 }
 
 def on() {
 	//sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("airConditionerMode")+'","FanSpeed":"Auto","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-	sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
+	sendEvent(name: "airConditionerMode", value: "auto", displayed: true, isStateChange: true)
     sendEvent(name: "switch", value: "on", displayed: true)
 }
 
@@ -122,7 +125,7 @@ def setCoolingSetpoint(temperature){
 		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+temperature+'"}')
 		sendEvent(name: "airConditionerMode", value: "cool", displayed: true)
 	}
-	sendEvent(name: "coolingSetpoint", value: temperature as int, unit: "C", displayed: true)
+	sendEvent(name: "coolingSetpoint", value: temperature as int, unit: "C", displayed: true, isStateChange: true)
     sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+temperature+'"}')
 //EDIÇÃO
 
@@ -130,33 +133,33 @@ def setCoolingSetpoint(temperature){
 
 def heat() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Heat","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-   	sendEvent(name: "airConditionerMode", value: "heat", displayed: true)
+   	sendEvent(name: "airConditionerMode", value: "heat", displayed: true, isStateChange: true)
 }
 
 def cool() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Cool","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    	sendEvent(name: "airConditionerMode", value: "cool", displayed: true)
+    	sendEvent(name: "airConditionerMode", value: "cool", displayed: true, isStateChange: true)
 }
 
 def auto() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
+    sendEvent(name: "airConditionerMode", value: "auto", displayed: true, isStateChange: true)
 }
 
 
 def fanAuto() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Auto","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    	sendEvent(name: "fanMode", value: "auto", displayed: true)
+    	sendEvent(name: "fanMode", value: "auto", displayed: true, isStateChange: true)
 }
 
 def fanCirculate() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Low","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    	sendEvent(name: "fanMode", value: "min", displayed: true)
+    	sendEvent(name: "fanMode", value: "min", displayed: true, isStateChange: true)
 }
 
 def fanOn() {
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Max","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-    sendEvent(name: "fanMode", value: "max", displayed: true)
+    sendEvent(name: "fanMode", value: "max", displayed: true, isStateChange: true)
 }
 
 //fim edição
@@ -165,12 +168,12 @@ def setThermostatMode(mode) {
     //"heat", "cool", "emergency heat", "auto", "off"
 	// if (mode!="cool" && mode!="auto" && mode!="fanOnly" && mode!="dry") {
     if (mode!="cool" && mode!="auto" && mode!="heat" && mode!="emergency heat" && mode!="dry") { //editei aqui jorge
-		sendEvent(name: "airConditionerMode", value: "auto", displayed: true)
+		sendEvent(name: "airConditionerMode", value: "auto", displayed: true, isStateChange: true)
 		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 		return
 	}
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
-	sendEvent(name: "airConditionerMode", value: mode, displayed: true)
+	sendEvent(name: "airConditionerMode", value: mode, displayed: true, isStateChange: true)
 
 }
 
@@ -178,10 +181,10 @@ def setThermostatFanMode(mode) {
     //"auto", "circulate", "on"
 	//if (mode!="low" && mode!="medium" && mode!="high" && mode!="auto") {
     if (mode!="auto" && mode!="circulate" && mode!="on") {
-		sendEvent(name: "fanMode", value: "auto", displayed: true)
+		sendEvent(name: "fanMode", value: "auto", displayed: true, isStateChange: true)
 		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 	} else {
-		sendEvent(name: "fanMode", value: mode, displayed: true)
+		sendEvent(name: "fanMode", value: mode, displayed: true, isStateChange: true)
 		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 	}
 	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
@@ -223,23 +226,21 @@ def configureHealthCheck() {
 }
 
 def installed() {
-	log.debug "in installed()"
-	state.switch="off"
-	state.switch="on"  // JORGE
-	sendEvent(name: "switch", value: "off", displayed: true)
-	sendEvent(name: "switch", value: "on", displayed: true)  // JORGE
-	sendEvent(name: "coolingSetpoint", value: 27, unit: "C")
-	sendEvent(name: "supportedAcModes", value:["auto", "cool","dry","fanOnly"])
-	sendEvent(name: "supportedAcFanModes", value:["auto", "low", "medium", "high", "turbo"])
-	sendEvent(name: "airConditionerMode", value: "auto", displayed: false)
+    initialize()
 }
 
-
 def updated() {
-	log.debug "in updated()"
-	// updated() doesn't have it's return value processed as hub commands, so we have to send them explicitly
-	def cmds = configure()
-	cmds.each{ sendHubCommand(new hubitat.device.HubAction(it)) } //Alterei
+    initialize()
+}
+
+def initialize() {
+    sendEvent(name: "supportedThermostatModes", value: ["off", "cool"])
+    if (device.currentThermostatMode == null) {
+        setThermostatMode("cool")
+    }
+    if (device.currentThermostatSetpoint == null) {
+        setCoolingSetpoint(17)
+    }
 }
 
 def ping() {
@@ -270,3 +271,5 @@ def getVENDOR() {
 def getFANMODE() {
 	return (device.currentValue("thermostatFanMode") == "turbo" ? "max" : device.currentValue("thermostatFanMode"))
 } 
+
+
