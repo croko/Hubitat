@@ -4,6 +4,9 @@ metadata {
     }
 }
 
+def parse(String description) {
+}
+
 
 def installed() {
     initialize()
