@@ -1,5 +1,5 @@
 metadata {
-    definition(name: "Tasmota Switch IR", namespace: "jorge", author: "Jorge Palmeira") {
+    definition(name: "Tasmota Switch IR", namespace: "jorgespneto", author: "Jorge Palmeira") {
         capability "Switch"
 
     }
