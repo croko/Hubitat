@@ -54,3 +54,7 @@ def sendTasmota(command) {
 def getVENDOR() {
 	return (settings.ACvendor ?: "SAMSUNG_AC")
 }
+
+def getFANMODE() {
+	return (device.currentValue("thermostatFanMode") == "turbo" ? "max" : device.currentValue("thermostatFanMode"))
+} 
