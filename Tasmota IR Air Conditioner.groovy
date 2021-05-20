@@ -46,7 +46,12 @@ def off() {
 }
 
 def on() {
-	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+MODE+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	if (MODE == "heat" || MODE == "Heat") {
+		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+MODE+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("heatingSetpoint")+'"}')
+	}
+	else {
+		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+MODE+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
+	}
 	sendEvent(name: "thermostatMode", value: "auto", displayed: true)
   sendEvent(name: "switch", value: "on", displayed: true)
   sendEvent(name: "on", value: "on", displayed: true)
@@ -96,7 +101,12 @@ def auto() {
 }
 
 def fanAuto() {
-	sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Auto","Temp":"'+device.currentValue("coolingSetpoint")+'","SwingV":"off","SwingH":"off","Quiet":"off","Turbo":"off","Econo":"off","Light":"on","Filter":"on","Clean":"on","Beep":"off","Sleep":-1}')
+		if (MODE == "heat" || MODE == "Heat") {
+			sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Auto","Temp":"'+device.currentValue("heatingSetpoint")+'","SwingV":"off","SwingH":"off","Quiet":"off","Turbo":"off","Econo":"off","Light":"on","Filter":"on","Clean":"on","Beep":"off","Sleep":-1}')
+		}
+		else {
+			sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"Auto","FanSpeed":"Auto","Temp":"'+device.currentValue("coolingSetpoint")+'","SwingV":"off","SwingH":"off","Quiet":"off","Turbo":"off","Econo":"off","Light":"on","Filter":"on","Clean":"on","Beep":"off","Sleep":-1}')
+		}
   sendEvent(name: "thermostatFanMode", value: "auto", displayed: true)
 }
 
@@ -120,13 +130,21 @@ def setThermostatMode(mode) {
 		sendEvent(name: "thermostatOperatingState", value: "idle", displayed: true)
 	}
 	else {
-		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'","SwingV":"off","SwingH":"off","Quiet":"off","Turbo":"off","Econo":"off","Light":"on","Filter":"on","Clean":"on","Beep":"off","Sleep":-1}')
+				if (mode == "heat" || mode == "Heat") {
+					sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("heatingSetpoint")+'","SwingV":"off","SwingH":"off","Quiet":"off","Turbo":"off","Econo":"off","Light":"on","Filter":"on","Clean":"on","Beep":"off","Sleep":-1}')
+				}
+				else {
+					sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+mode+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'","SwingV":"off","SwingH":"off","Quiet":"off","Turbo":"off","Econo":"off","Light":"on","Filter":"on","Clean":"on","Beep":"off","Sleep":-1}')
+				}
 		sendEvent(name: "on", value: "on", displayed: true)
 		sendEvent(name: "switch", value: "on", displayed: true)
 		sendEvent(name: "thermostatMode", value: mode, displayed: true)
 		sendEvent(name: "currentmode", value: mode, displayed: true)
 
-		if (mode == "heat" || mode == "cool" || mode == "dry") {
+		if (mode == "heat" || mode == "Heat" || mode == "dry") {
+			sendEvent(name: "thermostatOperatingState", value:"heating", displayed: true)
+		}
+		else if (mode == "cool" || mode == "Cool") {
 			sendEvent(name: "thermostatOperatingState", value:"heating", displayed: true)
 		}
 		else {
@@ -137,13 +155,23 @@ def setThermostatMode(mode) {
 
 def setThermostatFanMode(mode) {
   if (mode!="auto" && mode!="circulate" && mode!="on") {
-		sendEvent(name: "thermostatFanMode", value: "auto", displayed: true)
-  	sendEvent(name: "fanLevel", value: "auto", displayed: true)
-		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'","SwingV":"off","SwingH":"off","Quiet":"off","Turbo":"off","Econo":"off","Light":"on","Filter":"on","Clean":"on","Beep":"off","Sleep":-1}')
+		sendEvent(name: "thermostatFanMode", value: mode, displayed: true)
+  	sendEvent(name: "fanLevel", value: mode, displayed: true)
+		if (MODE == "heat" || MODE == "Heat") {
+			sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("heatingSetpoint")+'","SwingV":"off","SwingH":"off","Quiet":"off","Turbo":"off","Econo":"off","Light":"on","Filter":"on","Clean":"on","Beep":"off","Sleep":-1}')
+		}
+		else {
+			sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'","SwingV":"off","SwingH":"off","Quiet":"off","Turbo":"off","Econo":"off","Light":"on","Filter":"on","Clean":"on","Beep":"off","Sleep":-1}')
+		}
 	} else {
 		sendEvent(name: "thermostatFanMode", value: mode, displayed: true)
   	sendEvent(name: "fanLevel", value: mode, displayed: true)
-		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'","SwingV":"off","SwingH":"off","Quiet":"off","Turbo":"off","Econo":"off","Light":"on","Filter":"on","Clean":"on","Beep":"off","Sleep":-1}')
+		if (MODE == "heat" || MODE == "Heat") {
+			sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("heatingSetpoint")+'","SwingV":"off","SwingH":"off","Quiet":"off","Turbo":"off","Econo":"off","Light":"on","Filter":"on","Clean":"on","Beep":"off","Sleep":-1}')
+		}
+		else {
+			sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("thermostatMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'","SwingV":"off","SwingH":"off","Quiet":"off","Turbo":"off","Econo":"off","Light":"on","Filter":"on","Clean":"on","Beep":"off","Sleep":-1}')
+		}
 	}
 }
 
@@ -162,11 +190,11 @@ def installed() {
 	state.switch="on"  // JORGE
 	sendEvent(name: "switch", value: "off", displayed: true)
 	sendEvent(name: "switch", value: "on", displayed: true)  // JORGE
-	sendEvent(name: "heatingSetpoint", value: 23, unit: "C", displayed: true)
+	sendEvent(name: "heatingSetpoint", value: 18, unit: "C", displayed: true)
 	sendEvent(name: "coolingSetpoint", value: 21, unit: "C", displayed: true)
 	sendEvent(name: "thermostatSetpoint", value: 23, unit: "C", displayed: true)
-	sendEvent(name: "thermostatMode", value: "heating", displayed: true)
-	sendEvent(name: "thermostatMode", value: "cooling", displayed: true)
+	// sendEvent(name: "thermostatMode", value: "heat", displayed: true)
+	// sendEvent(name: "thermostatMode", value: "cool", displayed: true)
 	sendEvent(name: "thermostatFanMode", value: "auto", displayed: true)
 	sendEvent(name: "supportedThermostatModes", value:["auto", "heat", "cool","dry","fan", "off"])
 	sendEvent(name: "supportedThermostatFanModes", value:["auto", "min", "low", "med", "high", "max"])
