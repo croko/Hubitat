@@ -145,7 +145,7 @@ def setThermostatMode(mode) {
 			sendEvent(name: "thermostatOperatingState", value:"heating", displayed: true)
 		}
 		else if (mode == "cool" || mode == "Cool") {
-			sendEvent(name: "thermostatOperatingState", value:"heating", displayed: true)
+			sendEvent(name: "thermostatOperatingState", value:"cooling", displayed: true)
 		}
 		else {
 			sendEvent(name: "thermostatOperatingState", value: mode, displayed: true)
