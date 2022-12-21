@@ -548,8 +548,8 @@ def refresh()
 {
   displayTraceLog( "refresh() called")
   poll()
-  sendEvent(name: "supportedThermostatModes", value:["auto", "heat", "cool","dry","fan", "off"])
-  sendEvent(name: "supportedThermostatFanModes", value:["auto", "low", "medium_low", "medium", "medium_high", "high"])
+  sendEvent(name: "supportedThermostatModes", value: '["auto", "heat", "cool","dry","fan", "off"]')
+  sendEvent(name: "supportedThermostatFanModes", value: '["auto", "low", "medium_low", "medium", "medium_high", "high"]')
 
   displayTraceLog( "refresh() ended")
 }
