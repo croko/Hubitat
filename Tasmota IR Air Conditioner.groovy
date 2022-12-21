@@ -196,8 +196,8 @@ def installed() {
 	// sendEvent(name: "thermostatMode", value: "heat", displayed: true)
 	// sendEvent(name: "thermostatMode", value: "cool", displayed: true)
 	sendEvent(name: "thermostatFanMode", value: "auto", displayed: true)
-	sendEvent(name: "supportedThermostatModes", value:["auto", "heat", "cool","dry","fan", "off"])
-	sendEvent(name: "supportedThermostatFanModes", value:["auto", "min", "low", "med", "high", "max"])
+	sendEvent(name: "supportedThermostatModes", value: '["auto", "heat", "cool","dry","fan", "off"]')
+	sendEvent(name: "supportedThermostatFanModes", value: '["auto", "min", "low", "med", "high", "max"]')
 }
 
 def updated() {
