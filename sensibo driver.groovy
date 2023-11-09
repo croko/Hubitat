@@ -731,6 +731,10 @@ def generateSwitchEvent(mode) {
    //refresh()
 }
 
+def setThermostatFanMode(mode) {
+   dfanLevel(mode)
+}
+
 def dfanLevel(String newLevel){
 	displayTraceLog( "dfanLevel called with fan = " + newLevel)
 
