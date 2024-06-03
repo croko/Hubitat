@@ -23,7 +23,39 @@ metadata {
 		capability "ThermostatHeatingSetpoint" //Ajustei
 		capability "ThermostatMode"            //Ajustei
 		capability "ThermostatFanMode"         //Ajustei
-		capability "ThermostatOperatingState"         //Ajustei
+		capability "ThermostatOperatingState"
+		capability "Temperature Measurement"
+
+    attribute "temperatureUnit","String"
+		attribute "targetTemperature","Double"
+    attribute "statusText","String"
+    attribute "currentmode","String"
+    attribute "fanLevel","String"
+    attribute "on","String"
+
+    command "setAll"
+    command "switchFanLevel"
+    command "switchMode"
+    command "raiseCoolSetpoint"
+    command "lowerCoolSetpoint"
+    command "raiseHeatSetpoint"
+    command "lowerHeatSetpoint"
+    command "voltage"
+    command "raiseTemperature"
+    command "lowerTemperature"
+    command "setThermostatMode"
+    command "modeHeat"
+    command "modeCool"
+    command "modeDry"
+    command "modeFan"
+    command "modeAuto"
+    command "lowfan"
+    command "mediumfan"
+    command "highfan"
+    command "quietfan"
+    command "strongfan"
+    command "autofan"
+    command "setAirConditionerMode"
 	}
 
 	preferences {
@@ -196,7 +228,7 @@ def installed() {
 	// sendEvent(name: "thermostatMode", value: "heat", displayed: true)
 	// sendEvent(name: "thermostatMode", value: "cool", displayed: true)
 	sendEvent(name: "thermostatFanMode", value: "auto", displayed: true)
-	sendEvent(name: "supportedThermostatModes", value: '["auto", "heat", "cool","dry","fan", "off"]')
+  sendEvent(name: "supportedThermostatModes", value: '["auto", "heat", "cool", "dry", "fan", "off"]')
 	sendEvent(name: "supportedThermostatFanModes", value: '["auto", "min", "low", "med", "high", "max"]')
 }
 
